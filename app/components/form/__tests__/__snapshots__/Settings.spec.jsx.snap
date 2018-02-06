@@ -16,9 +16,7 @@ exports[`Settings component matches snapshot 1`] = `
   >
     <label
       className="Settings__Label-bIhYmz iPSgUQ"
-    >
-      Form Settings
-    </label>
+    />
     <div
       style={
         Object {
@@ -34,9 +32,7 @@ exports[`Settings component matches snapshot 1`] = `
   <div
     className="Settings__Helper-cagYXW jnzDbx"
   >
-    <p>
-      Toogle any field to make it required in the form.
-    </p>
+    <p />
   </div>
   <div
     className="Settings__AllSettings-hAEgKd cLFeXF"
@@ -47,8 +43,29 @@ exports[`Settings component matches snapshot 1`] = `
       <label
         className="Settings__Label-bIhYmz iPSgUQ"
       >
-        Due Date
+        Invoice ID
       </label>
+      <label
+        className="Switch__SwitchStyle-cIZUZy lcgmHp"
+      >
+        <input
+          checked={false}
+          className="Switch__Input-jIJATX kGoGgc"
+          name="invoiceID"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <span
+          className="Switch__Slider-iwwTvI egztuK"
+        />
+      </label>
+    </div>
+    <div
+      className="Settings__Setting-iSwZaF jiKDp"
+    >
+      <label
+        className="Settings__Label-bIhYmz iPSgUQ"
+      />
       <label
         className="Switch__SwitchStyle-cIZUZy lcgmHp"
       >
@@ -69,9 +86,7 @@ exports[`Settings component matches snapshot 1`] = `
     >
       <label
         className="Settings__Label-bIhYmz iPSgUQ"
-      >
-        Currency
-      </label>
+      />
       <label
         className="Switch__SwitchStyle-cIZUZy lcgmHp"
       >
@@ -92,9 +107,7 @@ exports[`Settings component matches snapshot 1`] = `
     >
       <label
         className="Settings__Label-bIhYmz iPSgUQ"
-      >
-        Discount
-      </label>
+      />
       <label
         className="Switch__SwitchStyle-cIZUZy lcgmHp"
       >
@@ -115,9 +128,7 @@ exports[`Settings component matches snapshot 1`] = `
     >
       <label
         className="Settings__Label-bIhYmz iPSgUQ"
-      >
-        Tax
-      </label>
+      />
       <label
         className="Switch__SwitchStyle-cIZUZy lcgmHp"
       >
@@ -138,9 +149,7 @@ exports[`Settings component matches snapshot 1`] = `
     >
       <label
         className="Settings__Label-bIhYmz iPSgUQ"
-      >
-        Note
-      </label>
+      />
       <label
         className="Switch__SwitchStyle-cIZUZy lcgmHp"
       >

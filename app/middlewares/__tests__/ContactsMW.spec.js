@@ -2,6 +2,7 @@ import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/contacts';
 import ContactsMW from '../ContactsMW';
 import faker from 'faker';
+import i18n from '../../../i18n/i18n';
 
 // Mocks
 import {
@@ -98,13 +99,7 @@ describe('Contacts Middleware', () => {
       middleware(Actions.saveContact(newContact));
       // Expect
       expect(saveDoc).toHaveBeenCalled();
-      expect(saveDoc).toHaveBeenCalledWith(
-        'contacts',
-        Object.assign({}, newContact, {
-          _id: 'id-string',
-          created_at: 'now',
-        })
-      );
+      expect(saveDoc).toHaveBeenCalledWith('contacts', newContact);
     });
 
     it('should save records to DB', () => {
@@ -125,6 +120,8 @@ describe('Contacts Middleware', () => {
     it('should call next and dispatch notification ', () => {
       // Setup
       const newContact = {
+        _id: 'id-string',
+        created_at: 'now',
         fullname: faker.name.findName(),
         email: faker.internet.email(),
       };
@@ -139,10 +136,7 @@ describe('Contacts Middleware', () => {
             Object.assign({}, action, {
               payload: [
                 ...mockData.contactsRecords,
-                Object.assign({}, newContact, {
-                  _id: 'id-string',
-                  created_at: 'now',
-                }),
+                newContact
               ],
             })
           );
@@ -152,7 +146,7 @@ describe('Contacts Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Contact Created Successfully',
+              message: i18n.t('messages:contact:saved')
             },
           });
         })
@@ -228,7 +222,7 @@ describe('Contacts Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Deleted Successfully',
+              message: i18n.t('messages:contact:deleted')
             },
           });
         })

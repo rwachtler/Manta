@@ -1,6 +1,7 @@
 // Libs
 import faker from 'faker';
 import uuidv4 from 'uuid/v4';
+import i18n from '../../../i18n/i18n';
 
 // Helpers to test
 import {
@@ -13,6 +14,7 @@ import {
   validateDiscount,
   validateTax,
   validateNote,
+  setEditRecipient
 } from '../form';
 
 // Mocks
@@ -23,6 +25,7 @@ describe('getInvoiceData', () => {
   let formData;
   beforeEach(() => {
     formData = {
+      invoiceID: 'Invoice: 123-456-789',
       recipient: {
         newRecipient: true,
         select: {
@@ -59,6 +62,7 @@ describe('getInvoiceData', () => {
       settings: {
         open: false,
         required_fields: {
+          invoiceID: false,
           dueDate: false,
           currency: false,
           discount: false,
@@ -70,6 +74,7 @@ describe('getInvoiceData', () => {
         tax: {},
         currency: 'USD',
         required_fields: {
+          invoiceID: false,
           dueDate: false,
           currency: false,
           discount: false,
@@ -82,6 +87,8 @@ describe('getInvoiceData', () => {
 
   it('Should return correct data shape', () => {
     const invoiceData = getInvoiceData(formData);
+    // Include custom invoiceID
+    expect(invoiceData).not.toHaveProperty('invoiceID');
     // Include Rows & Recipient Data
     expect(invoiceData).toHaveProperty('rows');
     expect(invoiceData).toHaveProperty('recipient');
@@ -175,21 +182,6 @@ describe('getInvoiceData', () => {
     });
   });
 
-  it('should return note data when required', () => {
-    const newFormData = Object.assign({}, formData, {
-      note: {
-        content: faker.lorem.paragraph(),
-      },
-      settings: Object.assign({}, formData.settings, {
-        required_fields: Object.assign({}, formData.settings.required_fields, {
-          note: true,
-        }),
-      }),
-    });
-    const invoiceData = getInvoiceData(newFormData);
-    expect(invoiceData.note).toEqual(newFormData.note.content);
-  });
-
   it('should return tax data when required', () => {
     const newFormData = Object.assign({}, formData, {
       tax: {
@@ -225,12 +217,40 @@ describe('getInvoiceData', () => {
       amount: newFormData.discount.amount,
     });
   });
+
+  it('should return note data when required', () => {
+    const newFormData = Object.assign({}, formData, {
+      note: {
+        content: faker.lorem.paragraph(),
+      },
+      settings: Object.assign({}, formData.settings, {
+        required_fields: Object.assign({}, formData.settings.required_fields, {
+          note: true,
+        }),
+      }),
+    });
+    const invoiceData = getInvoiceData(newFormData);
+    expect(invoiceData.note).toEqual(newFormData.note.content);
+  });
+
+  it('should return invoiceID data when required', () => {
+    const newFormData = Object.assign({}, formData, {
+      settings: Object.assign({}, formData.settings, {
+        required_fields: Object.assign({}, formData.settings.required_fields, {
+          invoiceID: true,
+        }),
+      }),
+    });
+    const invoiceData = getInvoiceData(newFormData);
+    expect(invoiceData.invoiceID).toEqual('Invoice: 123-456-789');
+  });
 });
 
 describe('validateFormData', () => {
   let formData;
   beforeEach(() => {
     formData = {
+      invoiceID: 'Invoice 123-456-789',
       recipient: {
         newRecipient: true,
         select: {},
@@ -271,6 +291,7 @@ describe('validateFormData', () => {
       settings: {
         open: false,
         required_fields: {
+          invoiceID: true,
           dueDate: true,
           currency: true,
           discount: true,
@@ -286,6 +307,7 @@ describe('validateFormData', () => {
         },
         currency: 'USD',
         required_fields: {
+          invoiceID: true,
           dueDate: true,
           currency: true,
           discount: true,
@@ -346,6 +368,12 @@ describe('validateFormData', () => {
     const validation = validateFormData(formData);
     expect(validation).toEqual(false);
   });
+
+  it('should NOT pass with INCORRECT invoiceID', () => {
+    formData.invoiceID = '';
+    const validation = validateFormData(formData);
+    expect(validation).toEqual(false);
+  });
 });
 
 describe('validateRecipient', () => {
@@ -358,8 +386,8 @@ describe('validateRecipient', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Invalid Recipient',
-      message: 'Recipient Cannnot Be Blank',
+      title: i18n.t('dialog:validation:recipient:empty:title'),
+      message: i18n.t('dialog:validation:recipient:empty:message'),
     });
   });
 
@@ -375,8 +403,8 @@ describe('validateRecipient', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Fields Empty',
-      message: 'Please fill in all required field',
+      title: i18n.t('dialog:validation:recipient:requiredFields:title'),
+      message: i18n.t('dialog:validation:recipient:requiredFields:message'),
     });
   });
 
@@ -392,8 +420,8 @@ describe('validateRecipient', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Invalid Email Address',
-      message: 'Please provide a valid email address',
+      title: i18n.t('dialog:validation:recipient:email:title'),
+      message: i18n.t('dialog:validation:recipient:email:message'),
     });
   });
 
@@ -427,8 +455,8 @@ describe('validateRows', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Description can not be blank',
+      title: i18n.t('dialog:validation:rows:emptyDescription:title'),
+      message: i18n.t('dialog:validation:rows:emptyDescription:message'),
     });
   });
 
@@ -443,8 +471,8 @@ describe('validateRows', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Price must be greater than 0',
+      title: i18n.t('dialog:validation:rows:priceZero:title'),
+      message: i18n.t('dialog:validation:rows:priceZero:message'),
     });
   });
 
@@ -460,8 +488,8 @@ describe('validateRows', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Quantity must be greater than 0',
+      title: i18n.t('dialog:validation:rows:qtyZero:title'),
+      message: i18n.t('dialog:validation:rows:qtyZero:message'),
     });
   });
 
@@ -487,8 +515,8 @@ describe('validateDueDate', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Must Select A Due Date',
+      title: i18n.t('dialog:validation:dueDate:title'),
+      message: i18n.t('dialog:validation:dueDate:message'),
     });
   });
 
@@ -516,8 +544,8 @@ describe('validateCurrency', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Must Select A Currency',
+      title: i18n.t('dialog:validation:currency:title'),
+      message: i18n.t('dialog:validation:currency:message'),
     });
   });
 
@@ -547,8 +575,8 @@ describe('validateDiscount', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Discount Amount Must Be Greater Than 0',
+      title: i18n.t('dialog:validation:discount:title'),
+      message: i18n.t('dialog:validation:discount:message'),
     });
   });
 
@@ -577,8 +605,8 @@ describe('validateTax', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Tax Amount Must Be Greater Than 0',
+      title: i18n.t('dialog:validation:tax:title'),
+      message: i18n.t('dialog:validation:tax:message'),
     });
   });
 
@@ -606,8 +634,8 @@ describe('validateNote', () => {
     expect(validation).toEqual(false);
     expect(openDialog).toBeCalledWith({
       type: 'warning',
-      title: 'Required Field',
-      message: 'Note Content Must Not Be Blank',
+      title: i18n.t('dialog:validation:note:title'),
+      message: i18n.t('dialog:validation:note:message'),
     });
   });
 
@@ -623,5 +651,63 @@ describe('validateNote', () => {
     };
     const validation = validateNote(true, note);
     expect(validation).toEqual(true);
+  });
+});
+
+describe('set correct recipient information to use in edit mode', () => {
+  let allContacts;
+  beforeEach(() => {
+    allContacts = [
+      {
+        _id: uuidv4(),
+        fullname: faker.name.findName(),
+        email: faker.internet.email(),
+        company: faker.company.companyName(),
+        phone: faker.phone.phoneNumber(),
+      },
+      {
+        _id: uuidv4(),
+        fullname: faker.name.findName(),
+        email: faker.internet.email(),
+        company: faker.company.companyName(),
+        phone: faker.phone.phoneNumber(),
+      },
+      {
+        _id: uuidv4(),
+        fullname: faker.name.findName(),
+        email: faker.internet.email(),
+        company: faker.company.companyName(),
+        phone: faker.phone.phoneNumber(),
+      }
+    ];
+  });
+
+  it('should return current contact if it exist', () => {
+    const currentContact = allContacts[1];
+    const editRecipient =  setEditRecipient(allContacts, currentContact);
+    expect(editRecipient).toEqual({
+      newRecipient: false,
+      select: currentContact,
+    })
+  });
+
+  it('should create a new contact if the current contact does not exist', () => {
+    const currentContact = {
+      _id: 'random-string',
+      fullname: faker.name.findName(),
+      email: faker.internet.email(),
+      company: faker.company.companyName(),
+      phone: faker.phone.phoneNumber(),
+    };
+    const editRecipient =  setEditRecipient(allContacts, currentContact);
+    expect(editRecipient).toEqual({
+      newRecipient: true,
+      new: {
+        fullname: currentContact.fullname,
+        email: currentContact.email,
+        company: currentContact.company,
+        phone: currentContact.phone,
+      },
+    })
   });
 });

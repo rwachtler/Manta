@@ -1,8 +1,11 @@
 const openDialog = require('../renderers/dialog');
-import { isEmpty } from 'lodash';
+import { isEmpty, pick, includes } from 'lodash';
+import i18n from '../../i18n/i18n';
+import uuidv4 from 'uuid/v4';
 
 function validateFormData(formData) {
   const {
+    invoiceID,
     recipient,
     rows,
     dueDate,
@@ -14,6 +17,7 @@ function validateFormData(formData) {
   } = formData;
   // Required fields
   const { required_fields } = settings;
+  if (!validateInvoiceID(required_fields.invoiceID, invoiceID)) return false;
   if (!validateRecipient(recipient)) return false;
   if (!validateRows(rows)) return false;
   if (!validateDueDate(required_fields.dueDate, dueDate)) return false;
@@ -26,6 +30,7 @@ function validateFormData(formData) {
 
 function getInvoiceData(formData) {
   const {
+    invoiceID,
     recipient,
     rows,
     dueDate,
@@ -41,10 +46,18 @@ function getInvoiceData(formData) {
   const invoiceData = { rows };
   // Set Recipient
   if (recipient.newRecipient) {
-    invoiceData.recipient = recipient.new;
+    // Add id & created_at so the invoice records will remembers
+    invoiceData.recipient = Object.assign({}, recipient.new, {
+      _id: uuidv4(),
+      created_at: Date.now(),
+    });
   } else {
+    // TODO
+    // Migh as well filter out _rev
     invoiceData.recipient = recipient.select;
   }
+  // Set InvoiceID
+  if (required_fields.invoiceID) invoiceData.invoiceID = invoiceID;
   // Set Invoice DueDate
   if (required_fields.dueDate) invoiceData.dueDate = dueDate.selectedDate;
   // Set Invoice Currency
@@ -66,8 +79,8 @@ function validateRecipient(recipient) {
     if (isEmpty(recipient.new)) {
       openDialog({
         type: 'warning',
-        title: 'Invalid Recipient',
-        message: 'Recipient Cannnot Be Blank',
+        title: i18n.t('dialog:validation:recipient:empty:title'),
+        message: i18n.t('dialog:validation:recipient:empty:message'),
       });
       return false;
     }
@@ -80,8 +93,8 @@ function validateRecipient(recipient) {
     ) {
       openDialog({
         type: 'warning',
-        title: 'Required Fields Empty',
-        message: 'Please fill in all required field',
+        title: i18n.t('dialog:validation:recipient:requiredFields:title'),
+        message: i18n.t('dialog:validation:recipient:requiredFields:message'),
       });
       return false;
     }
@@ -90,8 +103,8 @@ function validateRecipient(recipient) {
     if (!regex.test(recipient.new.email)) {
       openDialog({
         type: 'warning',
-        title: 'Invalid Email Address',
-        message: 'Please provide a valid email address',
+        title: i18n.t('dialog:validation:recipient:email:title'),
+        message: i18n.t('dialog:validation:recipient:email:message'),
       });
       return false;
     }
@@ -108,8 +121,8 @@ function validateRows(rows) {
     if (!row.description) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Description can not be blank',
+        title: i18n.t('dialog:validation:rows:emptyDescription:title'),
+        message: i18n.t('dialog:validation:rows:emptyDescription:message'),
       });
       validated = false;
       break;
@@ -118,8 +131,8 @@ function validateRows(rows) {
     if (!row.price || row.price === 0) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Price must be greater than 0',
+        title: i18n.t('dialog:validation:rows:priceZero:title'),
+        message: i18n.t('dialog:validation:rows:priceZero:message'),
       });
       validated = false;
       break;
@@ -128,8 +141,8 @@ function validateRows(rows) {
     if (!row.quantity || row.quantity === 0) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Quantity must be greater than 0',
+        title: i18n.t('dialog:validation:rows:qtyZero:title'),
+        message: i18n.t('dialog:validation:rows:qtyZero:message'),
       });
       validated = false;
       break;
@@ -144,8 +157,8 @@ function validateDueDate(isRequired, dueDate) {
     if (!selectedDate || selectedDate === null) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Must Select A Due Date',
+        title: i18n.t('dialog:validation:dueDate:title'),
+        message: i18n.t('dialog:validation:dueDate:message'),
       });
       return false;
     }
@@ -159,8 +172,8 @@ function validateCurrency(isRequired, currency) {
     if (!currency || currency === null) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Must Select A Currency',
+        title: i18n.t('dialog:validation:currency:title'),
+        message: i18n.t('dialog:validation:currency:message'),
       });
       return false;
     }
@@ -175,8 +188,8 @@ function validateDiscount(isRequired, discount) {
     if (!amount || amount === '' || amount === 0) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Discount Amount Must Be Greater Than 0',
+        title: i18n.t('dialog:validation:discount:title'),
+        message: i18n.t('dialog:validation:discount:message'),
       });
       return false;
     }
@@ -191,8 +204,8 @@ function validateTax(isRequired, tax) {
     if (!amount || amount === '' || amount === 0) {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Tax Amount Must Be Greater Than 0',
+        title: i18n.t('dialog:validation:tax:title'),
+        message: i18n.t('dialog:validation:tax:message'),
       });
       return false;
     }
@@ -207,14 +220,46 @@ function validateNote(isRequired, note) {
     if (!content || content === '') {
       openDialog({
         type: 'warning',
-        title: 'Required Field',
-        message: 'Note Content Must Not Be Blank',
+        title: i18n.t('dialog:validation:note:title'),
+        message: i18n.t('dialog:validation:note:message'),
       });
       return false;
     }
     return true;
   }
   return true;
+}
+
+function validateInvoiceID(isRequired, invoiceID) {
+  if (isRequired) {
+    if (!invoiceID || invoiceID === '') {
+      openDialog({
+        type: 'warning',
+        title: i18n.t('dialog:validation:invoiceID:title'),
+        message: i18n.t('dialog:validation:invoiceID:message'),
+      });
+      return false;
+    }
+    return true;
+  }
+  return true;
+}
+
+// SET RECIPIENT INFORMATION IN EDIT MODE
+function setEditRecipient(allContacts, currentContact) {
+  if (allContacts.length) {
+    const contactIDs = allContacts.map(contact => contact._id);
+    if (includes(contactIDs, currentContact._id)) {
+      return {
+        newRecipient: false,
+        select: currentContact,
+      };
+    }
+  }
+  return {
+    newRecipient: true,
+    new: pick(currentContact, ['fullname', 'company', 'phone', 'email']),
+  };
 }
 
 export {
@@ -227,4 +272,5 @@ export {
   validateDiscount,
   validateTax,
   validateNote,
+  setEditRecipient,
 };

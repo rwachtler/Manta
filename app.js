@@ -14,7 +14,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 
 // Place a BrowserWindow in center of primary display
-const centerOnPrimaryDisplay = require('./app/helpers/center-on-primary-display');
+const centerOnPrimaryDisplay = require('./helpers/center-on-primary-display');
 
 // Prevent Linux GPU Bug
 // https://github.com/electron/electron/issues/4322
@@ -200,6 +200,7 @@ function setInitialValues() {
         amount: 0,
       },
       required_fields: {
+        invoiceID: false,
         dueDate: false,
         currency: false,
         discount: false,

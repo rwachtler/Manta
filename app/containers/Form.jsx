@@ -1,9 +1,10 @@
 // Libs
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { getCurrentInvoice } from '../reducers/FormReducer';
+import { translate } from 'react-i18next';
 
 // Actions
 import * as FormActions from '../actions/form';
@@ -18,6 +19,7 @@ import Discount from '../components/form/Discount';
 import DueDate from '../components/form/DueDate';
 import Tax from '../components/form/Tax';
 import Note from '../components/form/Note';
+import InvoiceID from '../components/form/InvoiceID';
 import Settings from '../components/form/Settings';
 import Button from '../components/shared/Button';
 import _withFadeInAnimation from '../components/shared/hoc/_withFadeInAnimation';
@@ -30,12 +32,7 @@ import {
 } from '../components/shared/Layout';
 
 // Component
-class Form extends Component {
-  shouldComponentUpdate(nextProps) {
-    if (this.props.currentInvoice !== nextProps.currentInvoice) return true;
-    return false;
-  }
-
+class Form extends PureComponent {
   render() {
     // Form & Settings Actions
     const { updateSettings } = this.props.boundSettingsActionCreators;
@@ -54,42 +51,65 @@ class Form extends Component {
       discount,
       tax,
       note,
+      invoiceID,
       settings,
       savedSettings,
     } = this.props.currentInvoice;
     const { required_fields, open, editMode } = settings;
+    // Translation
+    const { t } = this.props;
     return (
       <PageWrapper>
         <PageHeader>
-          <PageHeaderTitle>Create A New Invoice</PageHeaderTitle>
+          <PageHeaderTitle>
+            { editMode.active
+              ? t('form:header:edit')
+              : t('form:header:new')
+            }
+          </PageHeaderTitle>
           <PageHeaderActions>
             <Button danger onClick={clearForm}>
-              Clear
+              {t('form:header:btns:clear')}
             </Button>
             <Button
               primary={editMode.active}
               success={editMode.active === false}
               onClick={saveFormData}
             >
-              {editMode.active ? 'Update' : 'Save & Preview'}
+              {editMode.active
+                ? t('form:header:btns:update')
+                : t('form:header:btns:saveAndPreview')}
             </Button>
           </PageHeaderActions>
         </PageHeader>
         <PageContent>
           <Settings
+            t={t}
             toggleField={toggleField}
             toggleFormSettings={toggleFormSettings}
             settings={settings}
             savedSettings={savedSettings.required_fields}
             updateSavedSettings={updateSavedFormSettings}
           />
+          {required_fields.invoiceID && (
+            <InvoiceID
+              t={t}
+              invoiceID={invoiceID}
+              updateFieldData={updateFieldData}
+            />
+          )}
           <Recipient />
           <ItemsList />
           {required_fields.dueDate && (
-            <DueDate dueDate={dueDate} updateFieldData={updateFieldData} />
+            <DueDate
+              t={t}
+              dueDate={dueDate}
+              updateFieldData={updateFieldData}
+            />
           )}
           {required_fields.currency && (
             <Currency
+              t={t}
               currency={currency}
               updateFieldData={updateFieldData}
               savedSettings={savedSettings.currency}
@@ -97,10 +117,15 @@ class Form extends Component {
             />
           )}
           {required_fields.discount && (
-            <Discount discount={discount} updateFieldData={updateFieldData} />
+            <Discount
+              t={t}
+              discount={discount}
+              updateFieldData={updateFieldData}
+            />
           )}
           {required_fields.tax && (
             <Tax
+              t={t}
               tax={tax}
               updateFieldData={updateFieldData}
               savedSettings={savedSettings.tax}
@@ -108,7 +133,11 @@ class Form extends Component {
             />
           )}
           {required_fields.note && (
-            <Note note={note} updateFieldData={updateFieldData} />
+            <Note
+              t={t}
+              note={note}
+              updateFieldData={updateFieldData}
+            />
           )}
         </PageContent>
       </PageWrapper>
@@ -155,5 +184,6 @@ const mapDispatchToProps = dispatch => ({
 // Export
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
+  translate(['common', 'form']),
   _withFadeInAnimation
 )(Form);

@@ -7,6 +7,8 @@ import currencies from '../../libs/currencies.json';
 // Retrive settings
 const appConfig = require('electron').remote.require('electron-settings');
 const invoiceSettings = appConfig.get('invoice');
+// Helper
+import { setEditRecipient } from '../helpers/form';
 
 const initialState = {
   recipient: {
@@ -18,6 +20,7 @@ const initialState = {
   dueDate: {},
   discount: {},
   note: {},
+  invoiceID: "",
   // Set default values for currency and tax
   currency: currencies[invoiceSettings.currency],
   tax: invoiceSettings.tax,
@@ -74,11 +77,16 @@ const FormReducer = handleActions(
 
     [ACTION_TYPES.FORM_FIELD_UPDATE_DATA]: (state, action) => {
       const { field, data } = action.payload;
+      if (typeof data === 'object') {
+        return Object.assign({}, state, {
+          [field]: {
+            ...state[field],
+            ...data,
+          },
+        });
+      }
       return Object.assign({}, state, {
-        [field]: {
-          ...state[field],
-          ...data,
-        },
+        [field]: data
       });
     },
 
@@ -114,13 +122,15 @@ const FormReducer = handleActions(
         dueDate,
         discount,
         note,
+        contacts,
       } = action.payload;
       return Object.assign({}, state, {
         // Populate data
-        recipient: Object.assign({}, state.recipient, {
-          newRecipient: false,
-          select: recipient,
-        }),
+        recipient: Object.assign(
+          {},
+          state.recipient,
+          setEditRecipient(contacts, recipient)
+        ),
         rows,
         currency,
         dueDate:

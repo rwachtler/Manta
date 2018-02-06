@@ -3,6 +3,7 @@ import uuidv4 from 'uuid/v4';
 import currencies from '../../libs/currencies.json';
 const appConfig = require('electron').remote.require('electron-settings');
 const ipc = require('electron').ipcRenderer;
+import i18n from '../../i18n/i18n';
 
 // Actions & Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';
@@ -73,7 +74,7 @@ const InvoicesMW = ({ dispatch }) => next => action => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Invoice Created Successfully',
+              message: i18n.t('messages:invoice:saved'),
             },
           });
           // Preview Window
@@ -92,10 +93,27 @@ const InvoicesMW = ({ dispatch }) => next => action => {
 
     case ACTION_TYPES.INVOICE_EDIT: {
       // Continue
-      next(action);
-      // Change Tab to Form
-      dispatch(UIActions.changeActiveTab('form'));
-      break;
+      return getAllDocs('contacts')
+        .then(allDocs => {
+          next(
+            Object.assign({}, action, {
+              payload: Object.assign({}, action.payload, {
+                contacts: allDocs
+              })
+            })
+          );
+          // Change Tab to Form
+          dispatch(UIActions.changeActiveTab('form'));
+        })
+        .catch(err => {
+          next({
+            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+            payload: {
+              type: 'warning',
+              message: err.message,
+            },
+          });
+        });
     }
 
     case ACTION_TYPES.INVOICE_UPDATE: {
@@ -113,7 +131,7 @@ const InvoicesMW = ({ dispatch }) => next => action => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Invoice Updated Successfully',
+              message: i18n.t('messages:invoice:updated'),
             },
           });
         })
@@ -139,7 +157,7 @@ const InvoicesMW = ({ dispatch }) => next => action => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Deleted Successfully',
+              message: i18n.t('messages:invoice:deleted'),
             },
           });
         })
@@ -167,7 +185,7 @@ const InvoicesMW = ({ dispatch }) => next => action => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Updated Successfully',
+              message: i18n.t('messages:invoice:updated'),
             },
           });
         })

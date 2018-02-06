@@ -3,6 +3,7 @@ import * as Actions from '../../actions/invoices';
 import InvoicesMW from '../InvoicesMW';
 import faker from 'faker';
 import uuidv4 from 'uuid/v4';
+import i18n from '../../../i18n/i18n';
 
 // Mock Functions
 const {
@@ -190,7 +191,7 @@ describe('Invoices Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Invoice Created Successfully',
+              message: i18n.t('messages:invoice:saved'),
             },
           });
         })
@@ -302,16 +303,23 @@ describe('Invoices Middleware', () => {
       };
       // Execute
       const action = Actions.editInvoice(currentInvoice);
-      middleware(action);
-      // Call next
-      expect(next.mock.calls.length).toBe(1);
-      expect(next).toHaveBeenCalledWith(action);
-      // Dispatch change Tab action
-      expect(dispatch.mock.calls.length).toBe(1);
-      expect(dispatch).toHaveBeenCalledWith({
-        type: ACTION_TYPES.UI_TAB_CHANGE,
-        payload: 'form'
-      });
+      middleware(action).then(() => {
+        // Call next
+        expect(next.mock.calls.length).toBe(1);
+        expect(next).toHaveBeenCalledWith(
+          Object.assign({}, action, {
+            payload: Object.assign({}, action.payload, {
+              contacts: mockData.contactsRecords
+            })
+          })
+        );
+        // Dispatch change Tab action
+        expect(dispatch.mock.calls.length).toBe(1);
+        expect(dispatch).toHaveBeenCalledWith({
+          type: ACTION_TYPES.UI_TAB_CHANGE,
+          payload: 'form'
+        });
+      })
     });
   })
 
@@ -362,7 +370,7 @@ describe('Invoices Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Invoice Updated Successfully',
+              message: i18n.t('messages:invoice:updated'),
             },
           });
         })
@@ -426,7 +434,7 @@ describe('Invoices Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: 'Deleted Successfully',
+              message: i18n.t('messages:invoice:deleted'),
             },
           });
         })
