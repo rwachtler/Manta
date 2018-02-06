@@ -34,6 +34,14 @@ export const CONTACT_GET_ALL = 'CONTACT_GET_ALL';
 export const CONTACT_DELETE = 'CONTACT_DELETE';
 export const CONTACT_SAVE = 'CONTACT_SAVE';
 
+// SERVICES
+export const SERVICE_CREATE = 'SERVICE_CREATE';
+export const SERVICE_EDIT = 'SERVICE_EDIT';
+export const SERVICE_UPDATE = 'SERVICE_UPDATE';
+export const SERVICE_SAVE = 'SERVICE_SAVE';
+export const SERVICE_DELETE = 'SERVICE_DELETE';
+export const SERVICE_GET_ALL = 'SERVICE_GET_ALL';
+
 // SETTINGS
 // ===========================================================
 export const SETTINGS_SAVE = 'SETTINGS_SAVE';
