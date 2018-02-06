@@ -35,6 +35,11 @@ const allTabs = [
     icon: 'ion-person-stalker',
   },
   {
+    title: 'Products / Services',
+    name: 'services',
+    icon: 'ion-ios-box'
+  },
+  {
     title: 'Settings',
     name: 'settings',
     icon: 'ion-ios-gear',
@@ -80,6 +85,7 @@ export const Icon = styled.i`
   ${props => props.id === 'contacts' && `color: #469fe5;`};
   ${props => props.id === 'settings' && `color: #C4C8CC;`};
   ${props => props.id === 'invoices' && `color: #cbc189;`};
+  ${props => props.id === 'services' && `color: #c189cb`};
 `;
 
 export const ActiveIndicator = styled.div`
