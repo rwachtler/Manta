@@ -43,7 +43,8 @@ const FormMW = ({ dispatch, getState }) => next => action => {
       break;
     }
 
-    case ACTION_TYPES.FORM_ITEM_ADD: {
+    case ACTION_TYPES.FORM_ITEM_ADD:
+    case ACTION_TYPES.SERVICE_ITEM_ADD: {
       return next(
         Object.assign({}, action, {
           payload: { id: uuidv4() },

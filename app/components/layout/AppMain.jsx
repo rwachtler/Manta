@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Form from '../../containers/Form';
 import Invoices from '../../containers/Invoices';
 import Contacts from '../../containers/Contacts';
+import Services from '../../containers/Services';
 import Settings from '../../containers/Settings';
 
 // Layout
@@ -23,6 +24,7 @@ class AppMain extends Component {
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
         {activeTab === 'contacts' && <Contacts />}
+        {activeTab === 'services' && <Services />}
         {activeTab === 'settings' && <Settings />}
       </AppMainContent>
     );

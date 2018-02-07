@@ -35,12 +35,11 @@ export const CONTACT_DELETE = 'CONTACT_DELETE';
 export const CONTACT_SAVE = 'CONTACT_SAVE';
 
 // SERVICES
-export const SERVICE_CREATE = 'SERVICE_CREATE';
-export const SERVICE_EDIT = 'SERVICE_EDIT';
-export const SERVICE_UPDATE = 'SERVICE_UPDATE';
+export const SERVICE_ITEM_ADD = 'SERVICE_ITEM_ADD';
+export const SERVICE_ITEM_REMOVE = 'SERVICE_ITEM_REMOVE';
+export const SERVICE_ITEM_UPDATE = 'SERVICE_ITEM_UPDATE';
+export const SERVICE_ITEM_MOVE = 'SERVICE_ITEM_MOVE';
 export const SERVICE_SAVE = 'SERVICE_SAVE';
-export const SERVICE_DELETE = 'SERVICE_DELETE';
-export const SERVICE_GET_ALL = 'SERVICE_GET_ALL';
 
 // SETTINGS
 // ===========================================================

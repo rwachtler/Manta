@@ -39,7 +39,8 @@ const UIMiddleware = ({ getState }) => next => action => {
     }
 
     // Others Actions
-    case ACTION_TYPES.FORM_ITEM_ADD: {
+    case ACTION_TYPES.FORM_ITEM_ADD:
+    case ACTION_TYPES.SERVICE_ITEM_ADD: {
       sounds.play('ADD');
       return next(action);
     }
